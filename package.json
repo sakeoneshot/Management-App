@@ -1,0 +1,19 @@
+{
+  "name": "management-app",
+  "version": "1.0.0",
+  "description": "It will manage todo, and CRUD employee and company data",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakeoneshot/Management-App.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sakeoneshot/Management-App/issues"
+  },
+  "homepage": "https://github.com/sakeoneshot/Management-App#readme"
+}
