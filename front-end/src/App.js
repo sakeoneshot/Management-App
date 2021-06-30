@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, Route, Switch } from 'react-router-dom'
 
 import "./App.css";
 
@@ -25,22 +26,12 @@ const objDisplay = (obj) => {
   return list;
 };
 
-//Todo Component
+/* //Todo Component
 const Todo = (props) => {
   console.log(props.todo);
-  const testArr = [
-    [
-      <li key={count++}> first elem in first arr </li>,
-      <li key={count++}> second elem in first arr </li>,
-    ],
-    [
-      <li key={count++}> first elem in second arr </li>,
-      <li key={count++}> second elem in second arr </li>,
-    ],
-  ];
+  
 
-  return testArr;
-  /* const todo = (
+  const todo = (
     <div>
       <ul>
         {props.todo.map((todo) => {
@@ -51,24 +42,20 @@ const Todo = (props) => {
   );
   console.log(todo);
 
-  return todo; */
+  return todo; 
   // return <Display data={props.todo} />;
-};
+}; */
 
-function App() {
-  const [dummy, setDummy] = useState([...dummyData]);
-
-  // send data to server once successful, display data through todo component
+//formtest
+const FormTest = (props) => {
   const sendFormData = (e) => {
     e.preventDefault();
     //send data to server
     console.log(e.target.name.value, e.target.phone.value);
     //display data
   };
-
   return (
-    <>
-      <form onSubmit={sendFormData}>
+    <form onSubmit={sendFormData}>
         <label htmlFor="name">Name: </label>
         <input type="text" name="name" />
         <label htmlFor="phone">Phone: </label>
@@ -77,7 +64,56 @@ function App() {
         <button>Submit</button>
       </form>
 
-      <Todo todo={dummy} />
+  )
+}
+
+//invoice
+const Invoice = (props) => {
+  return (
+    <div>Invoice Works!</div>
+  )
+}
+
+//navigation
+const Nav = (props) => {
+  return (
+    <nav>
+      <Link to='/invoice'>To Invoice</Link>
+    </nav>
+  )
+}
+
+//home
+
+const Home = (props) => {
+  return (
+    <div>Home works!</div>
+  )
+}
+
+function App() {
+  const [dummy, setDummy] = useState([...dummyData]);
+
+  // send data to server once successful, display data through todo component
+  
+
+  return (
+    <>
+      <Nav />
+
+      <Switch>
+        <Route path='/invoice'>
+          <Invoice />
+        </Route>
+        <Route path='/form-test'>
+          <FormTest />
+        </Route>
+
+        <Route>
+          <Home />
+        </Route>
+      </Switch>
+      
     </>
   );
 }
