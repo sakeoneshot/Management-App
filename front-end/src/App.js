@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { Link, Route, Switch } from "react-router-dom";
 
 import "./App.css";
@@ -6,64 +6,128 @@ import "./App.css";
 //Todo Component
 const Todo = (props) => {
 
+  const today = new Date().toISOString().replace('-', '/').split('T')[0].replace('-', '/');
+  // ref to focus inputs
+  const inputEl = useRef(null);
+
+  useEffect(() => {
+    if (inputEl.current) {
+      inputEl.current.focus();
+    }
+  })
+
   // todo list array to display
   const [todoList, setTodoList] = useState([]);
   //user input for new todo
-  const [curTodoInput, setCurTodoInput] = useState("");
+  const [curTodoInput, setCurTodoInput] = useState({ todo: "", isEdit: false });
+  //state for edit todo
+  const [onTodoEditInput, setOnTodoEditInput] = useState(null);
+
+
   //update curTodoInput state with user input
   const onTodoInputChange = (e) => {
-    setCurTodoInput(e.target.value);
+    setCurTodoInput((prevState) => {
+      return { ...prevState, todo: e.target.value };
+    });
   };
   //on form submt, add current todo input to todolist arr
   const ontodoFormSubmit = (e) => {
     e.preventDefault();
     //create new todo list array with the new user submitted todo
-    const newTodo = [...todoList];
 
-    newTodo.push(curTodoInput);
+    if (curTodoInput.todo.length > 0) {
+      const newTodo = [...todoList];
 
-    setTodoList(newTodo);
-
-    //reset userinput to empty string
-    setCurTodoInput('')
+      newTodo.push({ ...curTodoInput });
+  
+      setTodoList(newTodo);
+  
+      //reset userinput to empty string
+      setCurTodoInput({ todo: "", isEdit: false });
+    }
+    
   };
-  //todo form with an input field for user to type todo and button for submission 
+  //todo form with an input field for user to type todo and button for submission
   const todoForm = (
     <form onSubmit={ontodoFormSubmit}>
-      <input type="text" value={curTodoInput} onChange={onTodoInputChange} />
+      <input
+        type="text"
+        value={curTodoInput.todo}
+        onChange={onTodoInputChange}
+      />
       <button>Submit</button>
     </form>
   );
 
   //when triggered, allow user to update selected todo
-  const onEditClick = todo => {
-    
+  const onEditDoneClick = (clickedTodo) => {
     //get selected todo
-    //display form with input in the form of 'selected todo' -> 
-    //
-    return (
-      'EditClick Works!'
-    )
-  }
+    //set isedit property to !isedit
+    const newTodoList = [...todoList];
+    const todoIndex = newTodoList.findIndex(
+      (todo) => todo.todo === clickedTodo.todo
+    );
+    const newTodo = inputEl.current && inputEl.current.value !== clickedTodo.todo? inputEl.current.value : clickedTodo.todo
+
+    newTodoList[todoIndex] = { todo: newTodo, isEdit: !clickedTodo.isEdit };
+    setTodoList(newTodoList);
+
+
+  };
 
   //if there is no todo list added, let the user know, otherwise display todo list
   let todoListDisplay = "No todo to display";
 
+  
+  const onEditCancel = (onEditTodo) => {
+    const newTodo = [...todoList];
+    const todoIndex = newTodo.findIndex(todo => todo.todo === onEditTodo.todo)
+    newTodo[todoIndex] = {...onEditTodo, isEdit: !onEditTodo.isEdit}
+    setTodoList(newTodo);
+
+  }
+
+
+
   if (todoList.length > 0) {
+    //check if the todo is in edit, then set appropriate display
+
+    
+
+    let todoEditForm = (todo) => {
+      return (
+        <Fragment>
+          <span>{todo.todo}</span>
+          <input ref={inputEl} type="text"  />
+          <button onClick={onEditCancel.bind(null,todo)}>Cancel</button>
+        </Fragment>
+      );
+    };
+
+    let todoDisplay = (todo) => {
+      return todo.isEdit ? todoEditForm(todo) : todo.todo;
+    };
+
     todoListDisplay = (
       <ul>
         {todoList.map((todo) => {
-          return <li key={Math.random()}>{todo}<button>Edit</button></li>;
+          return (
+            <li key={Math.random()}>
+              {todoDisplay(todo)}
+              <button onClick={onEditDoneClick.bind(null, todo)}>{todo.isEdit? 'Done' : 'Edit'}</button>
+            </li>
+          );
         })}
       </ul>
     );
   }
 
   return (
-    <Fragment>
+    <div>
+      {today}
       {todoListDisplay}
       {todoForm}
-    </Fragment>
+    </div>
   );
 };
 
