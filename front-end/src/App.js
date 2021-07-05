@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Route, Switch } from 'react-router-dom'
+import { Link, Route, Switch } from "react-router-dom";
 
 import "./App.css";
 
@@ -56,56 +56,103 @@ const FormTest = (props) => {
   };
   return (
     <form onSubmit={sendFormData}>
-        <label htmlFor="name">Name: </label>
-        <input type="text" name="name" />
-        <label htmlFor="phone">Phone: </label>
-        <input type="text" name="phone" />
+      <label htmlFor="name">Name: </label>
+      <input type="text" name="name" />
+      <label htmlFor="phone">Phone: </label>
+      <input type="text" name="phone" />
 
-        <button>Submit</button>
-      </form>
-
-  )
-}
+      <button>Submit</button>
+    </form>
+  );
+};
 
 //invoice
 const Invoice = (props) => {
+  const dummyCompanyList = [
+    {
+      name: "CompanyA",
+      isReceived: false,
+    },
+    {
+      name: "CompanyB",
+      isReceived: false,
+    },
+    {
+      name: "CompanyC",
+      isReceived: false,
+    },
+  ];
+
+  const [companiesData, setCompnaiesData] = useState(dummyCompanyList);
+
+  
+  
+  const onCompanyClick = companyName => {
+    const companyIndex = companiesData.findIndex(company => company.name === companyName);
+
+    const updateCompany = {...companiesData[companyIndex], isReceived: !companiesData[companyIndex].isReceived}
+
+    const updateCompanyArr = [...companiesData];
+
+    updateCompanyArr[companyIndex] = updateCompany
+
+    setCompnaiesData(updateCompanyArr)
+  }
+  
+
+  const invoiceText = (company) => {
+    if (company.isReceived) {
+      return `${company.name} : invoice received`
+    }
+    else {
+      return `${company.name} : invoice NOT received yet`
+    }
+
+
+  }
+
   return (
-    <div>Invoice Works!</div>
-  )
-}
+    <ul>
+      {companiesData.map((company) => {
+        return (
+          <li key={company.name} onClick={onCompanyClick.bind(null,company.name)}>
+            {invoiceText(company)}
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
 
 //navigation
 const Nav = (props) => {
   return (
     <nav>
-      <Link to='/invoice'>To Invoice</Link>
+      <Link to="/invoice">To Invoice</Link>
     </nav>
-  )
-}
+  );
+};
 
 //home
 
 const Home = (props) => {
-  return (
-    <div>Home works!</div>
-  )
-}
+  return <div>Home works!</div>;
+};
 
 function App() {
   const [dummy, setDummy] = useState([...dummyData]);
 
   // send data to server once successful, display data through todo component
-  
 
   return (
     <>
       <Nav />
 
       <Switch>
-        <Route path='/invoice'>
+        <Route path="/invoice">
           <Invoice />
         </Route>
-        <Route path='/form-test'>
+        <Route path="/form-test">
           <FormTest />
         </Route>
 
@@ -113,7 +160,6 @@ function App() {
           <Home />
         </Route>
       </Switch>
-      
     </>
   );
 }
