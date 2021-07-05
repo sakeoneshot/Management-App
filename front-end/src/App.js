@@ -1,50 +1,71 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link, Route, Switch } from "react-router-dom";
 
 import "./App.css";
 
-let count = 0;
+//Todo Component
+const Todo = (props) => {
 
-//dummy todo data
-const dummyData = [
-  { name: "hello", phone: "111-111-1111" },
-  { name: "bye", phone: "222-222-2222" },
-];
+  // todo list array to display
+  const [todoList, setTodoList] = useState([]);
+  //user input for new todo
+  const [curTodoInput, setCurTodoInput] = useState("");
+  //update curTodoInput state with user input
+  const onTodoInputChange = (e) => {
+    setCurTodoInput(e.target.value);
+  };
+  //on form submt, add current todo input to todolist arr
+  const ontodoFormSubmit = (e) => {
+    e.preventDefault();
+    //create new todo list array with the new user submitted todo
+    const newTodo = [...todoList];
 
-//takes an object and returns jsx list(s) of <li key>key: value</li>
-const objDisplay = (obj) => {
-  const list = [];
+    newTodo.push(curTodoInput);
 
-  for (const key in obj) {
-    list.push(
-      <li key={count++}>
-        {key}: {obj[key]}
-      </li>
+    setTodoList(newTodo);
+
+    //reset userinput to empty string
+    setCurTodoInput('')
+  };
+  //todo form with an input field for user to type todo and button for submission 
+  const todoForm = (
+    <form onSubmit={ontodoFormSubmit}>
+      <input type="text" value={curTodoInput} onChange={onTodoInputChange} />
+      <button>Submit</button>
+    </form>
+  );
+
+  //when triggered, allow user to update selected todo
+  const onEditClick = todo => {
+    
+    //get selected todo
+    //display form with input in the form of 'selected todo' -> 
+    //
+    return (
+      'EditClick Works!'
+    )
+  }
+
+  //if there is no todo list added, let the user know, otherwise display todo list
+  let todoListDisplay = "No todo to display";
+
+  if (todoList.length > 0) {
+    todoListDisplay = (
+      <ul>
+        {todoList.map((todo) => {
+          return <li key={Math.random()}>{todo}<button>Edit</button></li>;
+        })}
+      </ul>
     );
   }
 
-  return list;
-};
-
-/* //Todo Component
-const Todo = (props) => {
-  console.log(props.todo);
-  
-
-  const todo = (
-    <div>
-      <ul>
-        {props.todo.map((todo) => {
-          return objDisplay(todo);
-        })}
-      </ul>
-    </div>
+  return (
+    <Fragment>
+      {todoListDisplay}
+      {todoForm}
+    </Fragment>
   );
-  console.log(todo);
-
-  return todo; 
-  // return <Display data={props.todo} />;
-}; */
+};
 
 //formtest
 const FormTest = (props) => {
@@ -66,7 +87,7 @@ const FormTest = (props) => {
   );
 };
 
-//invoice
+//display invoice received state for each company
 const Invoice = (props) => {
   const dummyCompanyList = [
     {
@@ -85,37 +106,39 @@ const Invoice = (props) => {
 
   const [companiesData, setCompnaiesData] = useState(dummyCompanyList);
 
-  
-  
-  const onCompanyClick = companyName => {
-    const companyIndex = companiesData.findIndex(company => company.name === companyName);
+  const onCompanyClick = (companyName) => {
+    const companyIndex = companiesData.findIndex(
+      (company) => company.name === companyName
+    );
 
-    const updateCompany = {...companiesData[companyIndex], isReceived: !companiesData[companyIndex].isReceived}
+    const updateCompany = {
+      ...companiesData[companyIndex],
+      isReceived: !companiesData[companyIndex].isReceived,
+    };
 
     const updateCompanyArr = [...companiesData];
 
-    updateCompanyArr[companyIndex] = updateCompany
+    updateCompanyArr[companyIndex] = updateCompany;
 
-    setCompnaiesData(updateCompanyArr)
-  }
-  
+    setCompnaiesData(updateCompanyArr);
+  };
 
   const invoiceText = (company) => {
     if (company.isReceived) {
-      return `${company.name} : invoice received`
+      return `${company.name} : invoice received`;
+    } else {
+      return `${company.name} : invoice NOT received yet`;
     }
-    else {
-      return `${company.name} : invoice NOT received yet`
-    }
-
-
-  }
+  };
 
   return (
     <ul>
       {companiesData.map((company) => {
         return (
-          <li key={company.name} onClick={onCompanyClick.bind(null,company.name)}>
+          <li
+            key={company.name}
+            onClick={onCompanyClick.bind(null, company.name)}
+          >
             {invoiceText(company)}
           </li>
         );
@@ -129,6 +152,7 @@ const Nav = (props) => {
   return (
     <nav>
       <Link to="/invoice">To Invoice</Link>
+      <Link to="/todo">To Todo</Link>
     </nav>
   );
 };
@@ -139,13 +163,14 @@ const Home = (props) => {
   return <div>Home works!</div>;
 };
 
+//main app component
 function App() {
-  const [dummy, setDummy] = useState([...dummyData]);
+  //const [dummy, setDummy] = useState([...dummyData]);
 
   // send data to server once successful, display data through todo component
 
   return (
-    <>
+    <Fragment>
       <Nav />
 
       <Switch>
@@ -155,12 +180,15 @@ function App() {
         <Route path="/form-test">
           <FormTest />
         </Route>
+        <Route path="/todo">
+          <Todo />
+        </Route>
 
         <Route>
           <Home />
         </Route>
       </Switch>
-    </>
+    </Fragment>
   );
 }
 
