@@ -1,11 +1,13 @@
 import { Fragment, useState, useRef, useEffect } from "react";
 import { Link, Route, Switch } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import "./App.css";
 
 //Todo Component
 const Todo = (props) => {
-
+  const defaultState = useSelector(state => state.state)
+  console.log(defaultState)
   const today = new Date().toISOString().replace('-', '/').split('T')[0].replace('-', '/');
   // ref to focus inputs
   const inputEl = useRef(null);
@@ -21,7 +23,7 @@ const Todo = (props) => {
   //user input for new todo
   const [curTodoInput, setCurTodoInput] = useState({ todo: "", isEdit: false });
   //state for edit todo
-  const [onTodoEditInput, setOnTodoEditInput] = useState(null);
+  
 
 
   //update curTodoInput state with user input
@@ -211,10 +213,13 @@ const Invoice = (props) => {
   );
 };
 
+//list of workers request 
+
 //navigation
 const Nav = (props) => {
   return (
     <nav>
+      <Link to="/home">To Home</Link>
       <Link to="/invoice">To Invoice</Link>
       <Link to="/todo">To Todo</Link>
     </nav>
@@ -246,6 +251,9 @@ function App() {
         </Route>
         <Route path="/todo">
           <Todo />
+        </Route>
+        <Route path="/work-send">
+
         </Route>
 
         <Route>
