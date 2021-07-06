@@ -1,6 +1,6 @@
 import { Fragment, useState, useRef, useEffect } from "react";
 import { Link, Route, Switch } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import "./App.css";
 
@@ -155,7 +155,13 @@ const FormTest = (props) => {
 
 //display invoice received state for each company
 const Invoice = (props) => {
-  const dummyCompanyList = [
+
+  const companyState = useSelector(state => state.companyReducer);
+  const dispatch = useDispatch();
+
+  console.log(companyState)
+
+  /* const dummyCompanyList = [
     {
       name: "CompanyA",
       isReceived: false,
@@ -168,12 +174,12 @@ const Invoice = (props) => {
       name: "CompanyC",
       isReceived: false,
     },
-  ];
+  ]; */
 
-  const [companiesData, setCompnaiesData] = useState(dummyCompanyList);
+  //const [companiesData, setCompnaiesData] = useState(dummyCompanyList);
 
   const onCompanyClick = (companyName) => {
-    const companyIndex = companiesData.findIndex(
+    /* const companyIndex = companiesData.findIndex(
       (company) => company.name === companyName
     );
 
@@ -186,11 +192,13 @@ const Invoice = (props) => {
 
     updateCompanyArr[companyIndex] = updateCompany;
 
-    setCompnaiesData(updateCompanyArr);
+    setCompnaiesData(updateCompanyArr); */
+    dispatch({type: "Invoice-Received", payload: companyName})
+    
   };
 
   const invoiceText = (company) => {
-    if (company.isReceived) {
+    if (company.invoice) {
       return `${company.name} : invoice received`;
     } else {
       return `${company.name} : invoice NOT received yet`;
@@ -199,11 +207,11 @@ const Invoice = (props) => {
 
   return (
     <ul>
-      {companiesData.map((company) => {
+      {companyState.map((company) => {
         return (
           <li
             key={company.name}
-            onClick={onCompanyClick.bind(null, company.name)}
+            onClick={onCompanyClick.bind(null,company.name)}
           >
             {invoiceText(company)}
           </li>
