@@ -6,8 +6,7 @@ import "./App.css";
 
 //Todo Component
 const Todo = (props) => {
-  const defaultState = useSelector(state => state.state)
-  console.log(defaultState)
+  
   const today = new Date().toISOString().replace('-', '/').split('T')[0].replace('-', '/');
   // ref to focus inputs
   const inputEl = useRef(null);
@@ -159,7 +158,6 @@ const Invoice = (props) => {
   const companyState = useSelector(state => state.companyReducer);
   const dispatch = useDispatch();
 
-  console.log(companyState)
 
   /* const dummyCompanyList = [
     {
