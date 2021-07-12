@@ -6,7 +6,7 @@ const Employee = require("../models/employee");
 // controllers for get request with employees -> fetch employee data from mongodb server
 exports.getEmployees = (req, res, next) => {
   employee.find().then(employee => {
-    //res.render(/);
+    //res.render(/);cd
   })
 }
 
