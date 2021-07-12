@@ -36,27 +36,59 @@ const companyReducer = (state = companies, action) => {
 
 //section for todo state
 
-todo {
-  Date,
-  todo[]
-}
 
-const initialTodo = [];
+/* const initialTodo = {
+  dayTodo: [
+    {
+      date: '2021/7/8',
+      todo: [
+        {
+          type: 'day',
+          todo: 'todo',
+          id: uuidv4(),
+          isEdit: false,
+          isDone: false,
+          createdAt: new Date()
+        }
+      ]
+    }
+  ],
+  longTermTodo: [
+    {
+      date: '2021/7/8',
+      type: 'long-term',
+      todo: 'long term todo',
+      id: uuidv4(),
+      isEdit: false,
+      isDone: false
+    }
+  ],
+  doneTodo: [
+    {
+      todo: [
+        {
+          todo: todo
+        }
+      ]
+    }
+  ]
+}; */
 
+const initialTodo = ''
 const todoReducer = (state = initialTodo, action) => {
   switch (action.type) {
     case 'ADD_TODO' :
-      const newTodo = { todo: action.payload.todo, id: uuidv4(), isEdit: false}
-      const dateIndex = state.findIndex(todo => todo.date === action.payload.date);
-      if (dateIndex < 0) {
+      const newTodo = { type: action.payload.type, todo: action.payload.todo, id: uuidv4(), isEdit: false}
+      //const dateIndex = state.findIndex(todo => todo.date === action.payload.date);
+      /* if (dateIndex < 0) {
         const newTodoObj = { id: uuidv4(), date: action.payload.date, todo: [newTodo] }
         const newTodoArr = [...state];
         newTodoArr.push(newTodoObj);
 
         return newTodoArr;
-      }
+      } */
 
-      return 
+      return state;
     default:
       return state;
 
