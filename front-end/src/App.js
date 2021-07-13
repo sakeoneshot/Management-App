@@ -1,17 +1,18 @@
 import { Fragment, useState, useRef, useEffect } from "react";
 import { Link, Route, Switch } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import axios from 'axios'
+import axios from "axios";
 
 import "./App.css";
 
+const today = new Date()
+  .toISOString()
+  .replace("-", "/")
+  .split("T")[0]
+  .replace("-", "/");
+
 //Todo Component
 const Todo = (props) => {
-  const today = new Date()
-    .toISOString()
-    .replace("-", "/")
-    .split("T")[0]
-    .replace("-", "/");
   // ref to focus inputs
   const inputEl = useRef(null);
 
@@ -154,6 +155,19 @@ const FormTest = (props) => {
 
 //display invoice received state for each company
 const Invoice = (props) => {
+  async function fetchCompanyData() {
+    const data = await axios.get("http://localhost:5000/company");
+    const parsedData = data.data;
+    console.log("fetchCompanyData has run");
+    setCompanyData(parsedData);
+  }
+
+  const [companyData, setCompanyData] = useState([]);
+
+  useEffect(() => {
+    fetchCompanyData();
+  }, []);
+
   const companyState = useSelector((state) => state.companyReducer);
   const dispatch = useDispatch();
 
@@ -174,8 +188,8 @@ const Invoice = (props) => {
 
   //const [companiesData, setCompnaiesData] = useState(dummyCompanyList);
 
-  const onCompanyClick = (companyName) => {
-    /* const companyIndex = companiesData.findIndex(
+  /* const onCompanyClick = (companyName) => {
+     const companyIndex = companiesData.findIndex(
       (company) => company.name === companyName
     );
 
@@ -188,32 +202,77 @@ const Invoice = (props) => {
 
     updateCompanyArr[companyIndex] = updateCompany;
 
-    setCompnaiesData(updateCompanyArr); */
+    setCompnaiesData(updateCompanyArr); 
     dispatch({ type: "Invoice-Received", payload: companyName });
-  };
+  }; */
 
-  const invoiceText = (company) => {
-    if (company.invoice) {
-      return `${company.name} : invoice received`;
+  const onInvoiceReceived = async (company) => {
+    const response = await axios.post(
+      "http://localhost:5000/company/updateInvoice",
+      { _id: company._id, timesheetReceivedDate: today }
+    );
+    const companyIndex = companyData.findIndex(
+      (comp) => comp._id === company._id
+    );
+    const newCompanyData = [...companyData];
+    const newCompany = {
+      ...company,
+      timesheetReceived: !company.timesheetReceived,
+    };
+
+    newCompanyData[companyIndex] = newCompany;
+
+    setCompanyData(newCompanyData);
+
+    console.log(response);
+  };
+  const timesheetRcvdComp = [];
+  const timesheetNotRcvdComp = [];
+
+  companyData.forEach((data) => {
+    if (data.timesheetReceived) {
+      timesheetRcvdComp.push(data);
     } else {
-      return `${company.name} : invoice NOT received yet`;
+      timesheetNotRcvdComp.push(data);
     }
-  };
-
-  return (
-    <ul>
-      {companyState.map((company) => {
-        return (
-          <li
-            key={company.name}
-            onClick={onCompanyClick.bind(null, company.name)}
-          >
-            {invoiceText(company)}
-          </li>
-        );
-      })}
-    </ul>
+  });
+  const timesheetReceivedData = (
+    <div>
+      <div>Timesheet received company</div>
+      <ul>
+        {timesheetRcvdComp.map((company) => {
+          return (
+            <li
+              key={company._id}
+              onClick={onInvoiceReceived.bind(null, company)}
+            >
+              {company.name}
+            </li>
+          );
+        })}
+      </ul>
+      <div>invoice NOT received company</div>
+      <ul>
+        {timesheetNotRcvdComp.map((company) => {
+          return (
+            <li
+              key={company._id}
+              onClick={onInvoiceReceived.bind(null, company)}
+            >
+              {company.name}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
+
+  const invoiceData =
+    companyData.length === 0
+      ? "No Company Data available"
+      : timesheetReceivedData;
+
+  return invoiceData;
 };
 
 //employees page
@@ -243,7 +302,10 @@ const Employees = (props) => {
 
   const onFormSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:5000/employee',employeeData).then(res => console.log(res)).catch(err => console.log(err))
+    axios
+      .post("http://localhost:5000/employee", employeeData)
+      .then((res) => console.log(res))
+      .catch((err) => console.log(err));
   };
 
   const employeeSubmitForm = (
