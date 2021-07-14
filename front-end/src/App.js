@@ -206,6 +206,7 @@ const Invoice = (props) => {
     dispatch({ type: "Invoice-Received", payload: companyName });
   }; */
 
+  //send post request to server of a company to update timesheet received status and today's date
   const onInvoiceReceived = async (company) => {
     const response = await axios.post(
       "http://localhost:5000/company/updateInvoice",
@@ -226,6 +227,9 @@ const Invoice = (props) => {
 
     console.log(response);
   };
+
+
+  // sort companies by timesheet received status
   const timesheetRcvdComp = [];
   const timesheetNotRcvdComp = [];
 
@@ -236,6 +240,19 @@ const Invoice = (props) => {
       timesheetNotRcvdComp.push(data);
     }
   });
+
+  // refresh all companies timesheet status to not received
+  const onRefreshClicked = async () => {
+    const response = await axios.post("http://localhost:5000/company/updateInvoice");
+    const newCompanyData = companyData.map(company => {
+      const newCompany = {...company, timesheetReceived: false}
+      return newCompany
+    })
+    setCompanyData(newCompanyData)
+    console.log(response)
+  }
+
+  // display companies by timesheet received status
   const timesheetReceivedData = (
     <div>
       <div>Timesheet received company</div>
@@ -264,6 +281,7 @@ const Invoice = (props) => {
           );
         })}
       </ul>
+      <button onClick={onRefreshClicked}>Refresh</button>
     </div>
   );
 

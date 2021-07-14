@@ -7,11 +7,20 @@ const adminController = require("./controllers/admin")
 const app = express();
 
 app.use(cors())
-app.use(express.static(path.resolve(__dirname, "../front-end/build")));
+//app.use(express.static(path.resolve(__dirname, "../front-end/build")));
 
 app.use(express.json());
 //app.use(express.)
 
+// company get route
+
+app.get("/company",adminController.getCompanies)
+
+
+// company post route
+app.post("/company/updateInvoice",adminController.updateCompanyInvoiceStatus)
+
+app.post("/company/refreshInvoice",adminController.refreshCompanyTimesheetStatus)
 
 // employee post route 
 app.post("/employee", adminController.postAddEmployee);
