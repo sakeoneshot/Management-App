@@ -1,23 +1,37 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
 const path = require("path");
+const cors = require("cors")
+const adminController = require("./controllers/admin")
 
 const app = express();
 
-app.use(express.static(path.resolve(__dirname, "../front-end/build")));
+app.use(cors())
+//app.use(express.static(path.resolve(__dirname, "../front-end/build")));
 
 app.use(express.json());
 //app.use(express.)
 
-app.post("/user", (req, res, next) => {});
+// company get route
+
+app.get("/company",adminController.getCompanies)
+
+
+// company post route
+app.post("/company/updateInvoice",adminController.updateCompanyInvoiceStatus)
+
+app.post("/company/refreshInvoice",adminController.refreshCompanyTimesheetStatus)
+
+// employee post route 
+app.post("/employee", adminController.postAddEmployee);
 
 app.get("*", (req, res, next) => {
   res.sendFile(path.resolve(__dirname, "../front-end/build", "index.html"));
 });
 
-mongoose.connect().then(() => {
-  app.listen(3000, () => console.log("server is running"));
-}).catch(err => {
-    console.log(err)
-});
+mongoose
+  .connect("mongodb://localhost:27017/test")
+  .then((result) => {
+    app.listen(5000, () => console.log("server is running"));
+  })
+  .catch((err) => console.log(err));

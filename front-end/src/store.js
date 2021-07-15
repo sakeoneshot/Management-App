@@ -36,10 +36,6 @@ const companyReducer = (state = companies, action) => {
 
 //section for todo state
 
-todo {
-  Date,
-  todo[]
-}
 
 const initialTodo = [];
 
