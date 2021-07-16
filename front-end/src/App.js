@@ -515,7 +515,65 @@ const Employees = (props) => {
   return <div>{employeeSubmitForm}</div>;
 };
 
-//list of workers request
+//it consists of two section -> one for requested works, and the other a request form
+const RequestWork = (props) => {
+  const [requestList, setRequestList] = useState([
+    {
+      _id: "testcompany",
+      company: "testComp",
+      workType: "gl",
+      numberOfWorkers: "4",
+      workers: ["a", "b", "c"],
+    },
+  ]);
+
+
+  const onRequestDelete = (req) => {
+    const newArr = requestList.filter(request => request._id !== req._id)
+    setRequestList(newArr)
+  }
+
+  const reqList = (
+    <ul>
+      {requestList.map((request) => (
+        <li key={request._id}>
+          <div>
+            <span>
+              {request.company} - {request.workType} - {request.numberOfWorkers}{" "}
+              people - going: {request.workers.join()}  
+            </span>
+            
+            <button onClick={onRequestDelete.bind(null,request)}>Delete</button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+  
+  const onRequestSubmit = (e) => {
+    e.preventDefault();
+    console.log(e.target.name)
+
+  }
+
+  const requestForm = (
+    <form onSubmit={onRequestSubmit}>
+      <label htmlFor="company">Company: </label>
+      <input type="text" id="company" name="company" />
+      <label htmlFor="workType">Work Type: </label>
+      <input type="text" id="workType" name="workType"/>
+      <label htmlFor="numberOfWorkers">Number of Workers requested: </label>
+      <input type="text" id="numberOfWorkers" name="numberOfWorkers"/>
+      <button>Submit</button>
+    </form>
+  );
+
+  return (
+    <div>
+      {reqList} <hr /> {requestForm}
+    </div>
+  );
+};
 
 //navigation
 const Nav = (props) => {
@@ -525,6 +583,7 @@ const Nav = (props) => {
       <Link to="/invoice">To Invoice</Link>
       <Link to="/todo">To Todo</Link>
       <Link to="/employees">To Employees</Link>
+      <Link to="/requestWork">To request work</Link>
     </nav>
   );
 };
@@ -557,6 +616,9 @@ function App() {
         </Route>
         <Route path="/employees">
           <Employees />
+        </Route>
+        <Route path="/requestWork">
+          <RequestWork />
         </Route>
 
         <Route>
