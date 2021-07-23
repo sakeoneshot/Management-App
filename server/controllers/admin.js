@@ -15,11 +15,23 @@ exports.getCompanies = (req, res, next) => {
 
 // controllers for post request with refresh company tiemsheet status all to false
 exports.refreshCompanyTimesheetStatus = (req, res, next) => {
-  Company.find().then(companies => {
-    companies.forEach(company => {company.timesheetReceived = false})
-    return companies.save()
-  }).then(result => res.send('Successfully reset timesheet status of all companies')).catch(err => res.send(err))
-}
+  Company.find()
+    .then((companies) => {
+      companies.forEach((company) => {
+        company.timesheetReceived = false;
+        company.save();
+      });
+      
+      //const result = companies.save();
+      //console.log(result);
+      const result = 'hello result'
+      return result;
+    })
+    .then((result) =>
+      res.send("Successfully reset timesheet status of all companies")
+    )
+    .catch((err) => res.send(err));
+};
 
 // controllers for post request with company data -> save company data to mongodb server
 exports.updateCompanyInvoiceStatus = (req, res, next) => {
@@ -27,7 +39,8 @@ exports.updateCompanyInvoiceStatus = (req, res, next) => {
   Company.findById(companyID)
     .then((prod) => {
       if (!prod) {
-        return res.send("No matching company");
+        console.log(prod);
+        throw "No matching company";
       }
       const isTimesheetReceived = prod.timesheetReceived;
 

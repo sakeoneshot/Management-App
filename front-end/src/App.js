@@ -243,7 +243,7 @@ const Invoice = (props) => {
   // refresh all companies timesheet status to not received
   const onRefreshClicked = async () => {
     const response = await axios.post(
-      "http://localhost:5000/company/updateInvoice"
+      "http://localhost:5000/company/refreshInvoice"
     );
     const newCompanyData = companyData.map((company) => {
       const newCompany = { ...company, timesheetReceived: false };

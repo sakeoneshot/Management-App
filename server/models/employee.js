@@ -7,7 +7,7 @@ const Schema = mongoose.Schema;
 
 const workHistory = new Schema({
   date: Date,
-  company: mongoose.ObjectId,
+  company: String,
 });
 
 const employeeSchema = new Schema({
