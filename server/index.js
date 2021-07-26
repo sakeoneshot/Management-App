@@ -25,6 +25,10 @@ app.post("/company/refreshInvoice",adminController.refreshCompanyTimesheetStatus
 // employee post route 
 app.post("/employee", adminController.postAddEmployee);
 
+// work request post route
+app.post("/workRequest",adminController.postWorkRequest);
+
+
 app.get("*", (req, res, next) => {
   res.sendFile(path.resolve(__dirname, "../front-end/build", "index.html"));
 });

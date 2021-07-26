@@ -517,53 +517,80 @@ const Employees = (props) => {
 
 //it consists of two section -> one for requested works, and the other a request form
 const RequestWork = (props) => {
-  const [requestList, setRequestList] = useState([
-    {
-      _id: "testcompany",
-      company: "testComp",
-      workType: "gl",
-      numberOfWorkers: "4",
-      workers: ["a", "b", "c"],
-    },
-  ]);
+  const sampleRequest = {
+    company: "",
+    type: "",
+    numberOfPeople: "",
+    date: today
+    
+  };
 
+  const [workRequest, setWorkRequest] = useState(sampleRequest);
+
+  const onInputChange = (e) => {
+    const newRequest = { ...workRequest };
+    newRequest[e.target.name] = e.target.value;
+    setWorkRequest(newRequest);
+  };
 
   const onRequestDelete = (req) => {
-    const newArr = requestList.filter(request => request._id !== req._id)
-    setRequestList(newArr)
-  }
+    const newArr = workRequest.filter((request) => request._id !== req._id);
+    setWorkRequest(newArr);
+  };
 
-  const reqList = (
+  const reqList = 'request list not specified'
+  /* const reqList = (
     <ul>
-      {requestList.map((request) => (
+      {workRequest.map((request) => (
         <li key={request._id}>
           <div>
             <span>
-              {request.company} - {request.workType} - {request.numberOfWorkers}{" "}
-              people - going: {request.workers.join()}  
+              {request.company} - {request.type} - {request.numberOfPeople}{" "}
+              people - going: {request.workers.join()}
             </span>
-            
-            <button onClick={onRequestDelete.bind(null,request)}>Delete</button>
+
+            <button onClick={onRequestDelete.bind(null, request)}>
+              Delete
+            </button>
           </div>
         </li>
       ))}
     </ul>
-  );
-  
-  const onRequestSubmit = (e) => {
-    e.preventDefault();
-    console.log(e.target.name)
+  ); */
 
-  }
+  const onRequestSubmit = async (e) => {
+    e.preventDefault();
+    const result = await axios.post('http://localhost:5000/workRequest',workRequest);
+    setWorkRequest(sampleRequest);
+    console.log(result)
+  };
 
   const requestForm = (
     <form onSubmit={onRequestSubmit}>
       <label htmlFor="company">Company: </label>
-      <input type="text" id="company" name="company" />
-      <label htmlFor="workType">Work Type: </label>
-      <input type="text" id="workType" name="workType"/>
-      <label htmlFor="numberOfWorkers">Number of Workers requested: </label>
-      <input type="text" id="numberOfWorkers" name="numberOfWorkers"/>
+      <input
+        type="text"
+        id="company"
+        name="company"
+        value={workRequest.compnay}
+        onChange={onInputChange}
+      />
+      <label htmlFor="type">Work Type: </label>
+      <input
+        type="text"
+        id="type"
+        name="type"
+        value={workRequest.type}
+        onChange={onInputChange}
+      />
+      <label htmlFor="numberOfPeople">Number of Workers requested: </label>
+      <input
+        type="text"
+        id="numberOfPeople"
+        name="numberOfPeople"
+        value={workRequest.numberOfPeople}
+        onChange={onInputChange}
+      />
       <button>Submit</button>
     </form>
   );

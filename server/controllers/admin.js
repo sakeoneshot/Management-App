@@ -2,6 +2,7 @@
 
 const Employee = require("../models/employee");
 const Company = require("../models/company");
+const Request = require("../models/requestWork")
 
 // controllers for get request with company -> fetch company data from mongodb server
 exports.getCompanies = (req, res, next) => {
@@ -103,3 +104,25 @@ exports.postAddEmployee = (req, res, next) => {
     })
     .catch((err) => console.log(err));
 };
+
+
+//handles work request 
+
+exports.postWorkRequest = (req,res,next) => {
+  
+
+  const company = req.body.company;
+  const type = req.body.type;
+  const numberOfPeople = req.body.numberOfPeople;
+  const date = req.body.date;
+
+  const newRequest = new Request({
+    company,
+    type,
+    numberOfPeople,
+    date,
+    isDone: false
+  })
+
+  newRequest.save().then(result => {console.log('successfully created request work'); res.send(result)}).catch(err => console.log(err))
+}
