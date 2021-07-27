@@ -5,6 +5,8 @@ import axios from "axios";
 
 import "./App.css";
 
+const SERVERURL = "http://localhost:5000";
+
 const today = new Date()
   .toISOString()
   .replace("-", "/")
@@ -156,7 +158,7 @@ const FormTest = (props) => {
 //display invoice received state for each company
 const Invoice = (props) => {
   async function fetchCompanyData() {
-    const data = await axios.get("http://localhost:5000/company");
+    const data = await axios.get(SERVERURL + "/company");
     const parsedData = data.data;
     console.log("fetchCompanyData has run");
     setCompanyData(parsedData);
@@ -208,10 +210,10 @@ const Invoice = (props) => {
 
   //send post request to server of a company to update timesheet received status and today's date
   const onInvoiceReceived = async (company) => {
-    const response = await axios.post(
-      "http://localhost:5000/company/updateInvoice",
-      { _id: company._id, timesheetReceivedDate: today }
-    );
+    const response = await axios.post(SERVERURL + "/company/updateInvoice", {
+      _id: company._id,
+      timesheetReceivedDate: today,
+    });
     const companyIndex = companyData.findIndex(
       (comp) => comp._id === company._id
     );
@@ -242,9 +244,7 @@ const Invoice = (props) => {
 
   // refresh all companies timesheet status to not received
   const onRefreshClicked = async () => {
-    const response = await axios.post(
-      "http://localhost:5000/company/refreshInvoice"
-    );
+    const response = await axios.post(SERVERURL + "/company/refreshInvoice");
     const newCompanyData = companyData.map((company) => {
       const newCompany = { ...company, timesheetReceived: false };
       return newCompany;
@@ -322,7 +322,7 @@ const Employees = (props) => {
   const onFormSubmit = async (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:5000/employee", employeeData)
+      .post(SERVERURL + "/employee", employeeData)
       .then((res) => {
         console.log(res);
         setEmployeeData(sampleEmployee);
@@ -521,48 +521,134 @@ const RequestWork = (props) => {
     company: "",
     type: "",
     numberOfPeople: "",
+    recruitedPeople: "",
     date: today
-    
   };
 
   const [workRequest, setWorkRequest] = useState(sampleRequest);
+  const [workRequests, setWorkRequests] = useState([]);
+  
 
+  // fetch work request from server database
+  async function fetchWorkRequest() {
+    const fetchResult = await axios.get(SERVERURL + "/workRequests");
+    const workRequestData = fetchResult.data;
+    const workRequestsEditMode = workRequestData.map(req => {
+      return {...req, isEdit: false}
+    })
+    setWorkRequests(workRequestsEditMode);
+  }
+
+  //get work requests from server on component mounting
+  useEffect(() => {
+    fetchWorkRequest();
+  }, []);
+
+  //control forms
   const onInputChange = (e) => {
     const newRequest = { ...workRequest };
+    
     newRequest[e.target.name] = e.target.value;
     setWorkRequest(newRequest);
   };
 
-  const onRequestDelete = (req) => {
-    const newArr = workRequest.filter((request) => request._id !== req._id);
-    setWorkRequest(newArr);
+  //delete request
+  const onRequestDelete = async (req) => {
+    const result = await axios.delete(SERVERURL + "/workRequest/" + req._id);
+    console.log(result);
+    fetchWorkRequest();
   };
 
-  const reqList = 'request list not specified'
-  /* const reqList = (
-    <ul>
-      {workRequest.map((request) => (
-        <li key={request._id}>
-          <div>
-            <span>
-              {request.company} - {request.type} - {request.numberOfPeople}{" "}
-              people - going: {request.workers.join()}
-            </span>
+  //completes request
+  const onRequestComplete = async (req) => {
 
-            <button onClick={onRequestDelete.bind(null, request)}>
-              Delete
-            </button>
-          </div>
-        </li>
-      ))}
-    </ul>
-  ); */
+  }
 
+  //update worker list
+  const onWorkerUpdate = async (req) => {
+    const result = await axios.put(SERVERURL + "/workRequest", {_id: req._id, recruitedPeople: workRequest.recruitedPeople});
+    setWorkRequest(state => {return {...state, recruitedPeople:''}});
+    fetchWorkRequest();
+    console.log(result);
+  }
+
+  //trigger workerupdate
+  const triggerWorkerUpdate = (req) => {
+    const index = workRequests.findIndex(workRequest => workRequest._id === req._id)
+    if (index >= 0) {
+      const newWorkRequestArr = [...workRequests];
+      const workReqObj = {...workRequests[index], isEdit: !workRequests[index].isEdit};
+      newWorkRequestArr[index] = workReqObj
+      setWorkRequests(newWorkRequestArr)
+    }
+    
+  }
+
+  //worker update form
+  
+
+
+  //on adding workers
+  const onAddWorkers = (req, e) => {
+    const index = workRequests.findIndex(workRequest => workRequest._id === req._id)
+    const newWorkRequestArr = [...workRequests];
+      const workReqObj = {...workRequests[index], recruitedPeople: e.target.value};
+      newWorkRequestArr[index] = workReqObj
+      setWorkRequests(newWorkRequestArr)
+  }
+  //let workerUpdateForm = null;
+  const workerUpdateForm = (req) => {
+    return req.isEdit? (
+    <div>
+      <label htmlFor="recruitedPeople">Workers: </label>
+      <input
+        type="text"
+        id="recruitedPeople"
+        name="recruitedPeople"
+        value={req.recruitedPeople}
+        onChange={onAddWorkers.bind(null,req)}
+      />
+      <button onClick={onWorkerUpdate}>Confirm</button>
+      <button onClick={triggerWorkerUpdate.bind(null,req)}>Cancel</button>
+    </div>
+  ) : 'no worker present'
+
+}
+
+  // work requests display
+  let reqList =
+    workRequests.length === 0 ? (
+      "request not present"
+    ) : (
+      <ul>
+        {workRequests.map((request) => (
+          <li key={request._id}>
+            <div>
+              <span>
+                {request.company} - {request.type} - {request.numberOfPeople}{" "}
+                people - going: {request.recruitedPeople}
+              </span>
+              {workerUpdateForm(request)}
+              {!request.isEdit && <button onClick={triggerWorkerUpdate.bind(null,request)}>Edit</button>}
+              <button disabled={request.isEdit} onClick={onRequestComplete.bind(null,request)}>
+                Complete
+              </button>
+
+              <button disabled={request.isEdit} onClick={onRequestDelete.bind(null, request)}>
+                Delete
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  //send post request of submitted work request
   const onRequestSubmit = async (e) => {
     e.preventDefault();
-    const result = await axios.post('http://localhost:5000/workRequest',workRequest);
+    const result = await axios.post(SERVERURL + "/workRequest", workRequest);
     setWorkRequest(sampleRequest);
-    console.log(result)
+    fetchWorkRequest();
+    console.log(result);
   };
 
   const requestForm = (
@@ -572,7 +658,7 @@ const RequestWork = (props) => {
         type="text"
         id="company"
         name="company"
-        value={workRequest.compnay}
+        value={workRequest.company}
         onChange={onInputChange}
       />
       <label htmlFor="type">Work Type: </label>

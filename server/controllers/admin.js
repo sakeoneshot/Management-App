@@ -2,7 +2,7 @@
 
 const Employee = require("../models/employee");
 const Company = require("../models/company");
-const Request = require("../models/requestWork")
+const WorkRequest = require("../models/requestWork");
 
 // controllers for get request with company -> fetch company data from mongodb server
 exports.getCompanies = (req, res, next) => {
@@ -22,10 +22,10 @@ exports.refreshCompanyTimesheetStatus = (req, res, next) => {
         company.timesheetReceived = false;
         company.save();
       });
-      
+
       //const result = companies.save();
       //console.log(result);
-      const result = 'hello result'
+      const result = "hello result";
       return result;
     })
     .then((result) =>
@@ -63,7 +63,7 @@ exports.updateCompanyInvoiceStatus = (req, res, next) => {
 
 // controllers for get request with employees -> fetch employee data from mongodb server
 exports.getEmployees = (req, res, next) => {
-  employee.find().then((employee) => {
+  Employee.find().then((employee) => {
     //res.render(/);cd
   });
 };
@@ -105,24 +105,61 @@ exports.postAddEmployee = (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
+//handles work request
 
-//handles work request 
-
-exports.postWorkRequest = (req,res,next) => {
-  
-
+//post
+exports.postWorkRequest = (req, res, next) => {
   const company = req.body.company;
   const type = req.body.type;
   const numberOfPeople = req.body.numberOfPeople;
   const date = req.body.date;
 
-  const newRequest = new Request({
+  const newRequest = new WorkRequest({
     company,
     type,
     numberOfPeople,
     date,
-    isDone: false
-  })
+    isDone: false,
+  });
 
-  newRequest.save().then(result => {console.log('successfully created request work'); res.send(result)}).catch(err => console.log(err))
+  newRequest
+    .save()
+    .then((result) => {
+      console.log("successfully created request work");
+      res.send(result);
+    })
+    .catch((err) => console.log(err));
+};
+
+//get
+
+exports.getWorkRequests = (req,res,next) => {
+  WorkRequest.find().then(workRequests => res.send(workRequests)).catch(err => console.log(err))
+}
+
+//delete
+
+exports.deleteWorkRequests = (req,res,next) => {
+  console.log(req.params)
+  WorkRequest.findByIdAndDelete(req.params.id, (err, docs) => {
+    if (err){
+      console.log(err)
+    }
+    else{
+      
+      console.log('successfully deleted workrequest')
+      res.send(docs);
+    }
+  })
+}
+
+// put
+
+exports.updateWorkRequests = (req,res,next) => {
+  WorkRequest.findById(req.body._id).then(request => {
+    const requestArr = req.body.recruitedPeople.split(" ")
+    request.recruitedPeople = requestArr;
+    return request.save();
+
+  }).then(result => res.send(result)).catch(err => console.log(err))
 }
