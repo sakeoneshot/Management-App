@@ -725,17 +725,17 @@ const Nav = (props) => {
 // company
 
 const Company = (props) => {
-  //initial company
+  //initial company state
   const companyStructure = {
     name: "",
   };
 
-  //company data
+  //company data state
   const [fetchedCompanies, setfetchedCompanies] = useState([]);
   //company form control state
   const [companyFormData, setCompanyFormData] = useState(companyStructure);
 
-  //get company data
+  //function to get company data
   const fetchCompanyData = async () => {
     const result = await axios.get(SERVERURL + "/company");
     const fetchedData = result.data;
@@ -752,14 +752,14 @@ const Company = (props) => {
 
   //fetch companies
   //company list
-  let companyList = "No company available, try adding one";
-  companyList = fetchedCompanies.length > 0 && (
+  
+  const companyList = fetchedCompanies.length > 0 ? (
     <ul>
       {fetchedCompanies.map((company) => (
         <li key={company._id}>{company.name}</li>
       ))}
     </ul>
-  );
+  ):  "No company available, try adding one";
 
   //company forms
   //handle company form data input
@@ -838,7 +838,7 @@ function App() {
         <Route path="/requestWork">
           <RequestWork />
         </Route>
-        <Route>
+        <Route path="/company">
           <Company />
         </Route>
 
