@@ -4,12 +4,29 @@ const Employee = require("../models/employee");
 const Company = require("../models/company");
 const WorkRequest = require("../models/requestWork");
 
+//Companies
+
 // controllers for get request with company -> fetch company data from mongodb server
 exports.getCompanies = (req, res, next) => {
   Company.find()
     .select("-timesheetReceivedDate")
     .then((company) => {
       res.send(company);
+    })
+    .catch((err) => console.log(err));
+};
+
+// controllers for post company with company data
+exports.postCompanies = (req, res, next) => {
+  const newCompany = new Company({
+    name: req.body.name
+  });
+
+  newCompany
+    .save()
+    .then((result) => {
+      console.log("successfully created company");
+      res.send(result);
     })
     .catch((err) => console.log(err));
 };
@@ -133,33 +150,35 @@ exports.postWorkRequest = (req, res, next) => {
 
 //get
 
-exports.getWorkRequests = (req,res,next) => {
-  WorkRequest.find().then(workRequests => res.send(workRequests)).catch(err => console.log(err))
-}
+exports.getWorkRequests = (req, res, next) => {
+  WorkRequest.find()
+    .then((workRequests) => res.send(workRequests))
+    .catch((err) => console.log(err));
+};
 
 //delete
 
-exports.deleteWorkRequests = (req,res,next) => {
-  console.log(req.params)
+exports.deleteWorkRequests = (req, res, next) => {
+  console.log(req.params);
   WorkRequest.findByIdAndDelete(req.params.id, (err, docs) => {
-    if (err){
-      console.log(err)
-    }
-    else{
-      
-      console.log('successfully deleted workrequest')
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("successfully deleted workrequest");
       res.send(docs);
     }
-  })
-}
+  });
+};
 
 // put
 
-exports.updateWorkRequests = (req,res,next) => {
-  WorkRequest.findById(req.body._id).then(request => {
-    const requestArr = req.body.recruitedPeople.split(" ")
-    request.recruitedPeople = requestArr;
-    return request.save();
-
-  }).then(result => res.send(result)).catch(err => console.log(err))
-}
+exports.updateWorkRequests = (req, res, next) => {
+  WorkRequest.findById(req.body._id)
+    .then((request) => {
+      const requestArr = req.body.recruitedPeople.split(" ");
+      request.recruitedPeople = requestArr;
+      return request.save();
+    })
+    .then((result) => res.send(result))
+    .catch((err) => console.log(err));
+};

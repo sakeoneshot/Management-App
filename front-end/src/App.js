@@ -522,20 +522,19 @@ const RequestWork = (props) => {
     type: "",
     numberOfPeople: "",
     recruitedPeople: "",
-    date: today
+    date: today,
   };
 
   const [workRequest, setWorkRequest] = useState(sampleRequest);
   const [workRequests, setWorkRequests] = useState([]);
-  
 
   // fetch work request from server database
   async function fetchWorkRequest() {
     const fetchResult = await axios.get(SERVERURL + "/workRequests");
     const workRequestData = fetchResult.data;
-    const workRequestsEditMode = workRequestData.map(req => {
-      return {...req, isEdit: false}
-    })
+    const workRequestsEditMode = workRequestData.map((req) => {
+      return { ...req, isEdit: false };
+    });
     setWorkRequests(workRequestsEditMode);
   }
 
@@ -547,7 +546,7 @@ const RequestWork = (props) => {
   //control forms
   const onInputChange = (e) => {
     const newRequest = { ...workRequest };
-    
+
     newRequest[e.target.name] = e.target.value;
     setWorkRequest(newRequest);
   };
@@ -560,60 +559,71 @@ const RequestWork = (props) => {
   };
 
   //completes request
-  const onRequestComplete = async (req) => {
-
-  }
+  const onRequestComplete = async (req) => {};
 
   //update worker list
   const onWorkerUpdate = async (req) => {
-    const result = await axios.put(SERVERURL + "/workRequest", {_id: req._id, recruitedPeople: workRequest.recruitedPeople});
-    setWorkRequest(state => {return {...state, recruitedPeople:''}});
+    const result = await axios.put(SERVERURL + "/workRequest", {
+      _id: req._id,
+      recruitedPeople: workRequest.recruitedPeople,
+    });
+    setWorkRequest((state) => {
+      return { ...state, recruitedPeople: "" };
+    });
     fetchWorkRequest();
     console.log(result);
-  }
+  };
 
   //trigger workerupdate
   const triggerWorkerUpdate = (req) => {
-    const index = workRequests.findIndex(workRequest => workRequest._id === req._id)
+    const index = workRequests.findIndex(
+      (workRequest) => workRequest._id === req._id
+    );
     if (index >= 0) {
       const newWorkRequestArr = [...workRequests];
-      const workReqObj = {...workRequests[index], isEdit: !workRequests[index].isEdit};
-      newWorkRequestArr[index] = workReqObj
-      setWorkRequests(newWorkRequestArr)
+      const workReqObj = {
+        ...workRequests[index],
+        isEdit: !workRequests[index].isEdit,
+      };
+      newWorkRequestArr[index] = workReqObj;
+      setWorkRequests(newWorkRequestArr);
     }
-    
-  }
+  };
 
   //worker update form
-  
-
 
   //on adding workers
   const onAddWorkers = (req, e) => {
-    const index = workRequests.findIndex(workRequest => workRequest._id === req._id)
+    const index = workRequests.findIndex(
+      (workRequest) => workRequest._id === req._id
+    );
     const newWorkRequestArr = [...workRequests];
-      const workReqObj = {...workRequests[index], recruitedPeople: e.target.value};
-      newWorkRequestArr[index] = workReqObj
-      setWorkRequests(newWorkRequestArr)
-  }
+    const workReqObj = {
+      ...workRequests[index],
+      recruitedPeople: e.target.value,
+    };
+    newWorkRequestArr[index] = workReqObj;
+    setWorkRequests(newWorkRequestArr);
+  };
   //let workerUpdateForm = null;
   const workerUpdateForm = (req) => {
-    return req.isEdit? (
-    <div>
-      <label htmlFor="recruitedPeople">Workers: </label>
-      <input
-        type="text"
-        id="recruitedPeople"
-        name="recruitedPeople"
-        value={req.recruitedPeople}
-        onChange={onAddWorkers.bind(null,req)}
-      />
-      <button onClick={onWorkerUpdate}>Confirm</button>
-      <button onClick={triggerWorkerUpdate.bind(null,req)}>Cancel</button>
-    </div>
-  ) : 'no worker present'
-
-}
+    return req.isEdit ? (
+      <div>
+        <label htmlFor="recruitedPeople">Workers: </label>
+        <input
+          type="text"
+          id="recruitedPeople"
+          name="recruitedPeople"
+          value={req.recruitedPeople}
+          onChange={onAddWorkers.bind(null, req)}
+        />
+        <button onClick={onWorkerUpdate}>Confirm</button>
+        <button onClick={triggerWorkerUpdate.bind(null, req)}>Cancel</button>
+      </div>
+    ) : (
+      "no worker present"
+    );
+  };
 
   // work requests display
   let reqList =
@@ -629,12 +639,22 @@ const RequestWork = (props) => {
                 people - going: {request.recruitedPeople}
               </span>
               {workerUpdateForm(request)}
-              {!request.isEdit && <button onClick={triggerWorkerUpdate.bind(null,request)}>Edit</button>}
-              <button disabled={request.isEdit} onClick={onRequestComplete.bind(null,request)}>
+              {!request.isEdit && (
+                <button onClick={triggerWorkerUpdate.bind(null, request)}>
+                  Edit
+                </button>
+              )}
+              <button
+                disabled={request.isEdit}
+                onClick={onRequestComplete.bind(null, request)}
+              >
                 Complete
               </button>
 
-              <button disabled={request.isEdit} onClick={onRequestDelete.bind(null, request)}>
+              <button
+                disabled={request.isEdit}
+                onClick={onRequestDelete.bind(null, request)}
+              >
                 Delete
               </button>
             </div>
@@ -697,7 +717,92 @@ const Nav = (props) => {
       <Link to="/todo">To Todo</Link>
       <Link to="/employees">To Employees</Link>
       <Link to="/requestWork">To request work</Link>
+      <Link to="/company">To Company</Link>
     </nav>
+  );
+};
+
+// company
+
+const Company = (props) => {
+  //initial company
+  const companyStructure = {
+    name: "",
+  };
+
+  //company data
+  const [fetchedCompanies, setfetchedCompanies] = useState([]);
+  //company form control state
+  const [companyFormData, setCompanyFormData] = useState(companyStructure);
+
+  //get company data
+  const fetchCompanyData = async () => {
+    const result = await axios.get(SERVERURL + "/company");
+    const fetchedData = result.data;
+    if (fetchedData && fetchedData.length > 0) {
+      setfetchedCompanies(fetchedData);
+      console.log(fetchedData);
+    }
+  };
+
+  // fetch companies from database on component mount
+  useEffect(() => {
+    fetchCompanyData();
+  }, []);
+
+  //fetch companies
+  //company list
+  let companyList = "No company available, try adding one";
+  companyList = fetchedCompanies.length > 0 && (
+    <ul>
+      {fetchedCompanies.map((company) => (
+        <li key={company._id}>{company.name}</li>
+      ))}
+    </ul>
+  );
+
+  //company forms
+  //handle company form data input
+  const onCompnayFormDataChange = (e) => {
+    const newForm = { ...companyFormData };
+
+    newForm[e.target.name] = e.target.value;
+
+    setCompanyFormData(newForm);
+  };
+
+  //handles form submit
+  const onCompanyDataSubmit = async (e) => {
+    e.preventDefault();
+
+    if (companyFormData.name) {
+      const result = await axios.post(SERVERURL + "/company", companyFormData);
+      console.log(result);
+      setCompanyFormData(companyStructure);
+      fetchCompanyData();
+    }
+  };
+
+  // company form
+  const companyForm = (
+    <form onSubmit={onCompanyDataSubmit}>
+      <label htmlFor="name">Company name: </label>
+      <input
+        type="text"
+        name="name"
+        id="name"
+        value={companyFormData.name}
+        onChange={onCompnayFormDataChange}
+      />
+      <button>Submit</button>
+    </form>
+  );
+
+  return (
+    <div>
+      <div>{companyList}</div>
+      <div>{companyForm}</div>
+    </div>
   );
 };
 
@@ -732,6 +837,9 @@ function App() {
         </Route>
         <Route path="/requestWork">
           <RequestWork />
+        </Route>
+        <Route>
+          <Company />
         </Route>
 
         <Route>

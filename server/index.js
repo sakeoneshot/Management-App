@@ -16,8 +16,12 @@ app.use(express.json());
 
 app.get("/company",adminController.getCompanies)
 
-
 // company post route
+
+app.post("/company",adminController.postCompanies)
+
+
+// company invoice post route
 app.post("/company/updateInvoice",adminController.updateCompanyInvoiceStatus)
 
 app.post("/company/refreshInvoice",adminController.refreshCompanyTimesheetStatus)
