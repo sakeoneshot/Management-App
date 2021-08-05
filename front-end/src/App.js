@@ -18,16 +18,26 @@ const Todo = (props) => {
   // ref to focus inputs
   const inputEl = useRef(null);
 
-  useEffect(() => {
-    if (inputEl.current) {
-      inputEl.current.focus();
-    }
-  });
+  
 
   // todo list array to display
   const [todoList, setTodoList] = useState([]);
   //user input for new todo
   const [curTodoInput, setCurTodoInput] = useState({ todo: "", isEdit: false });
+
+
+
+  async function fetchTodo() {
+    const fetchedTodo = await axios.get(SERVERURL + '/todo')
+    setTodoList(fetchedTodo.data)
+  }
+
+  useEffect(() => {
+    
+    fetchTodo();
+  },[]);
+
+
   //state for edit todo
 
   //update curTodoInput state with user input
@@ -37,16 +47,14 @@ const Todo = (props) => {
     });
   };
   //on form submt, add current todo input to todolist arr
-  const ontodoFormSubmit = (e) => {
+  const ontodoFormSubmit = async (e) => {
     e.preventDefault();
     //create new todo list array with the new user submitted todo
 
     if (curTodoInput.todo.length > 0) {
-      const newTodo = [...todoList];
-
-      newTodo.push({ ...curTodoInput });
-
-      setTodoList(newTodo);
+      
+      const postData = await axios.post(SERVERURL + '/todo',{ todo: curTodoInput.todo, createdAt: today})
+      console.log(postData)
 
       //reset userinput to empty string
       setCurTodoInput({ todo: "", isEdit: false });
@@ -134,6 +142,8 @@ const Todo = (props) => {
     </div>
   );
 };
+
+
 
 //formtest
 const FormTest = (props) => {
@@ -725,17 +735,17 @@ const Nav = (props) => {
 // company
 
 const Company = (props) => {
-  //initial company state
+  //initial company
   const companyStructure = {
     name: "",
   };
 
-  //company data state
+  //company data
   const [fetchedCompanies, setfetchedCompanies] = useState([]);
   //company form control state
   const [companyFormData, setCompanyFormData] = useState(companyStructure);
 
-  //function to get company data
+  //get company data
   const fetchCompanyData = async () => {
     const result = await axios.get(SERVERURL + "/company");
     const fetchedData = result.data;
@@ -751,15 +761,24 @@ const Company = (props) => {
   }, []);
 
   //fetch companies
+
   //company list
-  
-  const companyList = fetchedCompanies.length > 0 ? (
+  let companyList = "No company available, try adding one";
+  companyList = fetchedCompanies.length > 0 && (
     <ul>
       {fetchedCompanies.map((company) => (
         <li key={company._id}>{company.name}</li>
       ))}
     </ul>
-  ):  "No company available, try adding one";
+  );
+
+  //update company
+  
+
+  //delete company
+
+
+
 
   //company forms
   //handle company form data input
@@ -838,7 +857,7 @@ function App() {
         <Route path="/requestWork">
           <RequestWork />
         </Route>
-        <Route path="/company">
+        <Route>
           <Company />
         </Route>
 

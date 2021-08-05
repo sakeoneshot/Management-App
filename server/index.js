@@ -40,6 +40,21 @@ app.delete("/workRequest/:id",adminController.deleteWorkRequests)
 //update
 app.put("/workRequest",adminController.updateWorkRequests)
 
+
+
+// todo route
+ //get
+ app.get('/todo',adminController.getTodo);
+ //post
+ app.post('/todo',adminController.postTodo);
+ //delete
+ app.delete('/todo/:id',adminController.deleteTodo);
+ //update
+ app.put('/todo',adminController.updateTodo);
+
+
+// default route
+
 app.get("*", (req, res, next) => {
   res.sendFile(path.resolve(__dirname, "../front-end/build", "index.html"));
 });

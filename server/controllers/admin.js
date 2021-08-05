@@ -3,6 +3,7 @@
 const Employee = require("../models/employee");
 const Company = require("../models/company");
 const WorkRequest = require("../models/requestWork");
+const Todo = require("../models/todo");
 
 //Companies
 
@@ -19,7 +20,7 @@ exports.getCompanies = (req, res, next) => {
 // controllers for post company with company data
 exports.postCompanies = (req, res, next) => {
   const newCompany = new Company({
-    name: req.body.name
+    name: req.body.name,
   });
 
   newCompany
@@ -181,4 +182,86 @@ exports.updateWorkRequests = (req, res, next) => {
     })
     .then((result) => res.send(result))
     .catch((err) => console.log(err));
+};
+
+//Todo
+// get Todo
+exports.getTodo = (req, res, next) => {
+  /*
+    1. import todo model
+    2. fetch todo from database
+    3. if successful, send fetched todo data 
+    3-2. if failed, log error
+   */
+
+  Todo.find()
+    .then((todo) => {
+      res.send(todo);
+    })
+    .catch((err) => console.log(err));
+};
+
+// post Todo
+exports.postTodo = (req, res, next) => {
+  /* 
+     1. receive post todo data
+     2. validatae todo 
+     3-1. if valid, save todo to database
+     3-1-1. if successful, send successful reponse
+     3-1-2. if failed, log error
+     3-2. if not valid, send appropriate response
+    */
+  const { todo, createdAt } = req.body;
+  const createTodo = {
+    createdAt,
+    todo,
+    isDone: false,
+  };
+  const newTodo = new Todo(createTodo);
+  newTodo
+    .save()
+    .then((data) => res.send(data))
+    .catch((err) => console.log(err));
+};
+// delete Todo
+exports.deleteTodo = (req, res, next) => {
+  /*
+     1. retrieve todo id from params
+     2. delete todo by id
+     3. if successful, respond with success
+     3-1. if failed, response with error
+    */
+
+  const todoIdForDeletion = req.params.id;
+  Todo.findByIdAndDelete(todoIdForDeletion, (err, docs) => {
+    if (err) {
+      console.log("error occured");
+      res.send(err);
+    } else {
+      console.log("successfully deleted todo with id " + todoIdForDeletion);
+      res.send(docs);
+    }
+  });
+};
+
+// update todo
+exports.updateTodo = (req, res, next) => {
+  /*
+   1. get new todo data from request body
+   2. find todo by id and edit data
+  */
+
+  const { todo, updatedAt, isDone, _id } = req.body;
+  Todo.findById(_id)
+    .then((todoToUpdate) => {
+      todoToUpdate.todo = todo;
+      todoToUpdate.updatedAt = updatedAt;
+      if (isDone) {
+        todoToUpdate.isDone = isDone;
+      }
+
+      return todoToUpdate.save();
+    })
+    .then((result) => res.send(result))
+    .catch((err) => res.send(err));
 };
